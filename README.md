@@ -10,3 +10,4 @@ This is my first project.
 - 2.多层感知机任务 MLP Task
 - 3.多层感知机单分类任务 MLP-single-classification Task
 - 4.多层感知机多分类任务 MLP-multi-classification Task
+- 5.卷积分类任务 CNN-classification Task
