@@ -11,3 +11,5 @@ This is my first project.
 - 3.多层感知机单分类任务 MLP-single-classification Task
 - 4.多层感知机多分类任务 MLP-multi-classification Task
 - 5.卷积分类任务 CNN-classification Task
+- 6.卷积回归任务 CNN-regression Task
+- 7.卷积单目标检测任务 CNN-single-object-detection Task
