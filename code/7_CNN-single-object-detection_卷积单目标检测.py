@@ -21,10 +21,12 @@ class CNN(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Conv2d(hidden_dim, hidden_dim, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),
         )
         self.flatten = nn.Flatten()
 
-        self.output_layer = nn.Linear(2048, output_dim)
+        self.output_layer = nn.Linear(512, output_dim)
 
     def forward(self, x):
         x = self.img_encoder(x)
@@ -32,11 +34,11 @@ class CNN(nn.Module):
         x = self.output_layer(x)
         return x
 
-
 def get_data(data_size, img_size, get_all_img=False):
     train_images = []
     # 用于存储对应类别标签的列表
-    train_labels = []
+    train_class_labels = []
+    train_boundary_labels = []
     show_img_list = []
     for x in range(data_size // 2):
         b_col = (random.randint(0, 120), random.randint(0, 120), random.randint(0, 120))
@@ -80,16 +82,17 @@ def get_data(data_size, img_size, get_all_img=False):
         ])
         image0 = transform(image0)
         train_images.append(image0)
-        train_labels.append([mid_x, mid_y, w_x, h_y])
+        train_boundary_labels.append([mid_x, mid_y, w_x, h_y])
+        train_class_labels.append(0)
 
         image1 = transform(image1)
         train_images.append(image1)
-        train_labels.append([mid_x, mid_y, w_x, h_y])
+        train_boundary_labels.append([mid_x, mid_y, w_x, h_y])
+        train_class_labels.append(1)
 
-    print()
     # 转换为张量
-    train_images, train_labels = torch.stack(train_images), torch.tensor(train_labels)
-    return train_images, train_labels, show_img_list
+    train_images, train_class_labels, train_boundary_labels = torch.stack(train_images), torch.tensor(train_class_labels), torch.tensor(train_boundary_labels)
+    return train_images, train_class_labels, train_boundary_labels, show_img_list
 
 # 划分批次
 def split_batch(data, batch_size):
@@ -101,72 +104,97 @@ def split_batch(data, batch_size):
 # 训练数据
 img_size = 128
 batch_size = 128
-train_x, train_y, show_img_list = get_data(512, img_size)
+train_x, train_class, train_boundary, show_img_list = get_data(1024, img_size)
 train_x_batch = split_batch(train_x, batch_size)
-train_y_batch = split_batch(train_y, batch_size)
+train_class_batch = split_batch(train_class, batch_size)
+train_boundary_batch = split_batch(train_boundary, batch_size)
 # 验证数据
-val_x, val_y, _ = get_data(128, img_size)
+val_x, val_class, val_boundary, _ = get_data(128, img_size)
 # 测试数据
-test_x, test_y, test_img = get_data(6, img_size, get_all_img=True)
+test_x, test_class, test_boundary, test_img = get_data(6, img_size, get_all_img=True)
 print('输入数据形状:', train_x.shape)
 print('输入批次数量:', len(train_x_batch), '\t批次形状:', train_x_batch[0].shape)
-print('标签数据形状:', train_y.shape)
-print('输入批次数量:', len(train_y_batch), '\t批次形状:', train_y_batch[0].shape)
+print('类别标签形状:', train_class.shape)
+print('输入批次数量:', len(train_class_batch), '\t批次形状:', train_class_batch[0].shape)
+print('边界框标签形状:', train_boundary.shape)
+print('输入批次数量:', len(train_boundary_batch), '\t批次形状:', train_boundary_batch[0].shape)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-model = CNN(3, 4, 32).to(device)
-criterion = nn.MSELoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=0.0005)
+model = CNN(3, 6, 32).to(device)
+criterion_class = nn.CrossEntropyLoss()
+criterion_boundary = nn.MSELoss()
+optimizer_basic = torch.optim.Adam(model.parameters(), lr=0.0005)
 
 epochs = 50
 for epoch in range(epochs):
-    loss = None
+    sum_loss = None
     for i in range(len(train_x_batch)):
         x = train_x_batch[i].to(device)
-        y = train_y_batch[i].to(device)
+        y_class = train_class_batch[i].to(device)
+        y_boundary = train_boundary_batch[i].to(device)
         model.train()
         # 前向传播，得到预测值
         output = model(x)
+        output_class = output[:,0:2]
+        output_boundary = output[:,2:]
         # 计算损失
-        loss = criterion(output, y)
+        loss_class = criterion_class(output_class, y_class)
+        loss_boundary = criterion_boundary(output_boundary, y_boundary)
+        sum_loss = loss_class * 0.4 + loss_boundary * 0.6
         # 梯度清零，因为在每次反向传播前都要清除之前累积的梯度
-        optimizer.zero_grad()
+        optimizer_basic.zero_grad()
         # 反向传播，计算梯度
-        loss.backward()
+        sum_loss.backward()
         # 更新权重和偏置
-        optimizer.step()
+        optimizer_basic.step()
 
     val_x = val_x.to(device)
-    val_y = val_y.to(device)
+    val_y_class = val_class.to(device)
+    val_y_boundary = val_boundary.to(device)
     model.eval()
     output = model(val_x)
-    val_loss = criterion(output, val_y).item()
+    output_class = output[:,0:2]
+    output_boundary = output[:,2:]
+    val_loss_class = criterion_class(output_class, val_y_class)
+    val_loss_boundary = criterion_boundary(output_boundary, val_y_boundary)
+    val_sum_loss = val_loss_class * 0.4 + val_loss_boundary * 0.6
 
     # 更改验证逻辑为适合分类任务的准确率和召回率
     if (epoch + 1) % 10 == 0:
-        print(f'[epoch {epoch+1}]loss:', loss.item())
-        print(f'\t val loss:', val_loss)
+        print(f'[epoch {epoch+1}]loss:', sum_loss.item())
+        print(f'\t val loss:', val_sum_loss.item())
 
 model.eval()
+class_label_index = {0: 'round', 1: 'square'}
 test_x = test_x.to(device)
 output = model(test_x)
 
-test_combined = Image.new('RGB', (img_size * len(test_img), img_size))
+output_class = output[:, 0:2]
+output_boundary = output[:, 2:]
+
+m = 0
+test_combined = Image.new('RGB', (img_size*len(test_img), img_size))
 for i in range(len(test_x)):
     img = test_img[i]
     draw = ImageDraw.Draw(img)
 
-    mid_x, mid_y, range_w, range_h = output[i].to('cpu').tolist()
+    class_id = torch.argmax(output_class, dim=1)[i].item()
+
+    mid_x, mid_y, range_w, range_h = output_boundary[i].to('cpu').tolist()
 
     loc_x0 = mid_x * img_size - range_w * img_size / 2
     loc_y0 = mid_y * img_size - range_h * img_size / 2
     loc_x1 = mid_x * img_size + range_w * img_size / 2
     loc_y1 = mid_y * img_size + range_h * img_size / 2
 
-    draw.rectangle(((loc_x0, loc_y0), (loc_x1, loc_y1)), outline=(255, 0, 0), width=3)
+    draw.rectangle(((loc_x0, loc_y0), (loc_x1, loc_y1)), outline=(255, 0, 0), width=2)
+    draw.text((loc_x0 + 2, loc_y0 + 2), text=class_label_index[class_id], fill=(255, 0, 0), font_size=16)
 
-    test_combined.paste(img, (m, 0))  # 把a贴到画布左侧
+    test_combined.paste(img, (m, 0))    # 把a贴到画布左侧
+    m += img_size
     print('输入数据:', test_x[i].shape)
-    print('目标结果:', test_y[i].to('cpu').tolist())
-    print('预测结果:', output[i].to('cpu').tolist())
+    print('目标类别结果:', test_class[i].to('cpu').item())
+    print('类别预测结果:', class_id)
+    print('目标边界框结果:', test_boundary[i].to('cpu').tolist())
+    print('边界框预测结果:', output_boundary[i].to('cpu').tolist())
