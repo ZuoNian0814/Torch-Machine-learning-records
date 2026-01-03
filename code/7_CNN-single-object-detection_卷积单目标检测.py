@@ -129,11 +129,11 @@ optimizer_basic = torch.optim.Adam(model.parameters(), lr=0.0005)
 epochs = 50
 for epoch in range(epochs):
     sum_loss = None
+    model.train()
     for i in range(len(train_x_batch)):
         x = train_x_batch[i].to(device)
         y_class = train_class_batch[i].to(device)
         y_boundary = train_boundary_batch[i].to(device)
-        model.train()
         # 前向传播，得到预测值
         output = model(x)
         output_class = output[:,0:2]
