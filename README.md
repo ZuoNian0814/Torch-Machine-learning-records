@@ -17,3 +17,4 @@ This is my first project.
 - 7.卷积单目标检测 CNN-single-object-detection
 - 8.卷积图像分割 CNN Image Segmentation
 - 9.卷积滑动窗口预测 CNN Sliding Window Prediction
+- 10.循环神经网络文本分类 RNN Text Classification
