@@ -10,11 +10,11 @@ This is my first project.
 ## 目录 Catalogue
 - 1.线性回归 Linear Regression
 - 2.多层感知机回归 MLP Regression
-- 3.多层感知机单分类 MLP-single-classification
-- 4.多层感知机多分类 MLP-multi-classification
-- 5.卷积分类 CNN-classification
-- 6.卷积回归 CNN-regression
-- 7.卷积单目标检测 CNN-single-object-detection
+- 3.多层感知机单分类 MLP Single Classification
+- 4.多层感知机多分类 MLP Multi Classification
+- 5.卷积分类 CNN Classification
+- 6.卷积回归 CNN Regression
+- 7.卷积单目标检测 CNN Single Object Detection
 - 8.卷积图像分割 CNN Image Segmentation
 - 9.卷积滑动窗口预测 CNN Sliding Window Prediction
 - 10.循环神经网络文本分类 RNN Text Classification
