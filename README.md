@@ -21,3 +21,4 @@ This is my first project.
 - 11.循环神经网络命名实体识别 RNN Named Entity Recognition
 - 12.图神经网络图分类 GNN Graph Classification
 - 13.图神经网络节点分类 GNN Node Classification
+- 14.图神经网络节点嵌入 GNN Node embedding
