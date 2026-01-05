@@ -182,7 +182,6 @@ X_data = torch.tensor(X_data_idx, dtype=torch.long)
 Y_data = torch.tensor(Y_data, dtype=torch.long)
 
 # 训练数据
-img_size = 64
 batch_size = 128
 train_x, val_x, train_y, val_y = train_test_split(X_data, Y_data, test_size=0.1)
 
@@ -263,4 +262,5 @@ for test_text in test_text_list:
     input_tensor = torch.stack([test_data]).to(device)
     output = model(input_tensor)
     _, predicted = torch.max(output.data, 1)
+
     print(f"{test_text}: {'喜欢' if predicted.item() == 0 else '不喜欢'}")
