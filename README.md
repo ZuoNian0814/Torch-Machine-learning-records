@@ -18,3 +18,6 @@ This is my first project.
 - 8.卷积图像分割 CNN Image Segmentation
 - 9.卷积滑动窗口预测 CNN Sliding Window Prediction
 - 10.循环神经网络文本分类 RNN Text Classification
+- 11.循环神经网络命名实体识别 RNN Named Entity Recognition
+- 12.图神经网络图分类 GNN Graph Classification
+- 13.图神经网络节点分类 GNN Node Classification
