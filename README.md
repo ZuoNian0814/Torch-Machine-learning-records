@@ -24,3 +24,5 @@ This is my first project.
 - 14.图神经网络节点嵌入 | GNN Node embedding
 - 15.注意力机制(1) | Attention Mechanism (1)
 - 16.注意力机制(2) | Attention Mechanism (2)
+- 17.残差网络多层感知机 | Residual Network MLP
+- 18.残差网络卷积神经网络 | Residual Network CNN
