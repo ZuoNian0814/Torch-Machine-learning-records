@@ -29,9 +29,9 @@ ___
 - 17.残差网络多层感知机 | Residual Network MLP
 - 18.残差网络卷积神经网络 | Residual Network CNN
 - 19.位置编码 | Positional Encoding
-  
-- 20.Transformer编码器 (未发布) | Transformer Encoder (Unreleased)
-- 21.Transformer解码器 (未发布) | Transformer Dncoder (Unreleased)
-- 22.初识多模态 (未发布) | Multimodal Preliminary (Unreleased)
-- 23.特征融合方法 (未发布) | Feature-Fusion-Method (Unreleased)
-- 24.多模态输入 (未发布) | Multimodal-Input (Unreleased)
+- 20.Transformer编码器 | Transformer Encoder
+- 21.Transformer解码器| Transformer Dncoder
+- 22.Transformer机器翻译 | Transformer Machine Translation
+- 23.初识多模态 (未发布) | Multimodal Preliminary (Unreleased)
+- 24.特征融合方法 (未发布) | Feature-Fusion-Method (Unreleased)
+- 25.多模态输入 (未发布) | Multimodal-Input (Unreleased)
