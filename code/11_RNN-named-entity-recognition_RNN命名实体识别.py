@@ -21,14 +21,14 @@ class Model(nn.Module):
         return out
 
 
-thu1 = thulac.thulac()
+thu1 = thulac.thulac(seg_only=True)
 
 max_len = 30
 space_mark = '<S>'
 NoName_mark = '/'
 MidName_mark = '-'
 
-name_list = ['杭电信工', '杭州电子科技大学信息工程学院', '杭州电子科技大学', '杭州电子科技大学（青山湖校区）', '电子科技大学', '北京大学','北大', '清华', '清华大学', '浙江中医药大学', '国防科技大学', '合肥工业大学', '杭州师范大学', '浙江工商大学', '浙江农林大学','安徽医科大学', '安徽农业大学', '合肥理工大学', '合工大', '杭电']
+name_list = ['杭电信工', '杭州电子科技大学信息工程学院', '杭州电子科技大学', '杭州电子科技大学（青山湖校区）', '电子科技大学', '北京大学','北大', '清华', '清华大学', '浙江中医药大学', '国防科技大学', '合肥工业大学', '杭州师范大学', '浙江工商大学', '浙江农林大学','安徽医科大学', '安徽农业大学', '合肥理工大学', '合工大', '杭电', '复旦大学', '复旦', '上海交通大学', '上交', '上海交大', '南京大学', '南大', '东南大学', '东大', '武汉大学', '武大', '华中科技大学', '华科', '四川大学', '川大', '电子科技大学（成都）', '成电', '西安交通大学', '西交', '西北工业大学', '西工大', '中山大学', '中大', '华南理工大学', '华工', '浙江大学', '浙大', '中国科学技术大学', '中科大', '南京航空航天大学', '南航', '湖南大学', '湖大', '中南大学', '中南', '暨南大学', '暨大', '西南交通大学', '西南交大', '华东师范大学', '华师大', '上海财经大学', '上财', '中央财经大学', '央财', '中国医科大学', '中国医大', '南京医科大学', '南医大', '华中师范大学', '华师', '华南师范大学', '华南师大']
 
 sentence_list = [
     '我是Name的一名学生',
@@ -37,9 +37,9 @@ sentence_list = [
     '我正在Name接受教育',
     'Name是我选择的大学',
     '我是Name的学子',
-    '我在Name大学深造',
+    '我在Name深造',
     'Name是我求学的地方',
-    '我于Name大学就读',
+    '我于Name就读',
     '我正在Name攻读学位',
     'Name是我梦想中的大学',
     '我很高兴能在Name学习',
@@ -47,18 +47,18 @@ sentence_list = [
     '我选择了Name作为我的大学',
     '在Name，我追求知识的真谛',
     'Name为我提供了广阔的学习平台',
-    '我是Name大学的一份子',
+    '我是Name的一份子',
     'Name见证了我的成长与学习',
     '我将在Name完成我的学业',
     'Name是我人生中的重要一站',
-    '我在Name大学就读',
+    '我在Name就读',
     'Name是我目前就读的高等学府',
     '我正在Name接受高等教育',
     'Name是我选择深造的大学',
-    '我于Name大学开始学习之旅',
+    '我于Name开始学习之旅',
     '在Name，我开始了我的大学生活',
     'Name是我梦想中的学府，我现在正在那里学习',
-    '我目前的学习地点是Name大学',
+    '我目前的学习地点是Name',
     '我正在Name攻读我的学位',
     'Name是我求学之路的下一站',
     '我很高兴能在Name这样的名校学习',
@@ -166,11 +166,16 @@ for epoch in range(num_epochs):
         print(f'Epoch {epoch + 1}/{num_epochs}, Loss: {total_loss / len(train_x_batch)}')
 
 
+import random
+
 # 简单的预测函数（这里只是示例，实际应用中可进一步完善）
 def predict(model, sentence):
     result = [i[0] for i in thu1.cut(sentence)]
     words_idx = [word_to_idx.get(word, word_to_idx[space_mark]) if word in word_to_idx else word_to_idx.get(space_mark, word_to_idx) for word in result]
-    words_idx = torch.tensor([words_idx]).long().to(device)  # 转换为合适的张量形式
+    while len(words_idx) < max_len:
+        words_idx.append(word_to_idx[space_mark])
+    input_tensor = torch.tensor([words_idx])
+    words_idx = input_tensor.long().to(device)  # 转换为合适的张量形式
     with torch.no_grad():
         output = model(words_idx)
         predicted_tags = torch.argmax(output, dim=2)[0].tolist()
@@ -193,6 +198,8 @@ with torch.no_grad():
             if mark == '-':
                 sentence += f'\033[91m{words[i]}\033[0m'
             else:
-                sentence += words[i]
+                try:
+                    sentence += words[i]
+                except: break
 
         print('命名实体识别结果：', sentence)
