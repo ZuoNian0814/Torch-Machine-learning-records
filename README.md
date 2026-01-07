@@ -32,6 +32,3 @@ ___
 - 20.Transformer编码器 | Transformer Encoder
 - 21.Transformer解码器| Transformer Dncoder
 - 22.Transformer机器翻译 | Transformer Machine Translation
-- 23.初识多模态 (未发布) | Multimodal Preliminary (Unreleased)
-- 24.特征融合方法 (未发布) | Feature-Fusion-Method (Unreleased)
-- 25.多模态输入 (未发布) | Multimodal-Input (Unreleased)
